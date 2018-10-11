@@ -3,7 +3,7 @@ fs=filesep;
 %replace this with a list of directories containing the
 %conversionParameters.mat file
 
-list_of_directories = {...
+expt_directories = {...
                 'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115018'...
                 'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115041'...
                 'E:\Dawnis\IndependenceDay\L07\SptSTructural\_20170704_131757'...
@@ -24,6 +24,20 @@ list_of_directories = {...
                 'F:\Dawnis\IndieL08\ShckHBStructural\_20170704_165755'...
     };
 
+%add any co-label folders (containing the red channel) here. These folders
+%MUST have a copy of the conversionParameters.mat file that matches their
+%parent trial in them. 
+
+colabel_directories = { ...
+            'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115453'...
+    };
+
+%DO NOT CHANGE ANYTHING BELOW THIS LINE
+
+list_of_directories = [expt_directories, colabel_directories];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 for directory_idx  = 1:numel(list_of_directories)
     cd(list_of_directories{directory_idx});
     
@@ -31,6 +45,16 @@ for directory_idx  = 1:numel(list_of_directories)
     load conversionParameters;
     % clear all;
 
+    if directory_idx > numel(expt_directories)
+        convert.registerConcurrently = false;
+        convert.computeMax = false;
+        convert.computeMean = false;
+        convert.outputformat = '.tif';
+        convert.writeKeyImage = false;
+        convert.writeTimeSliceMovies = false;
+        convert.cropParameters.mask = 0;
+    end
+    
     %load user parameters
     outputformat = convert.outputformat; %comment/uncomment the type of format that you want
     % outputformat = '.tif';
