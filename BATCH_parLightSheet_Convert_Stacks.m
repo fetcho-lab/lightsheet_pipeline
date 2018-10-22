@@ -1,41 +1,72 @@
-system_shutdown_after_completion = true;
 fs=filesep;
 %replace this with a list of directories containing the
 %conversionParameters.mat file
+user_continue = false;
 
-expt_directories = {...
-                'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115018'...
-                'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115041'...
-                'E:\Dawnis\IndependenceDay\L07\SptSTructural\_20170704_131757'...
-                'E:\Dawnis\IndependenceDay\L07\SptSTructural\_20170704_131811'...
-                'E:\Dawnis\IndependenceDay\L07\SptSTructural\_20170704_131820'...
-                ...
-                'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115453'...
-                'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115512'...
-                'E:\Dawnis\IndependenceDay\L07\PostSpinal Structural\_20170704_142322'...
-                'E:\Dawnis\IndependenceDay\L07\PostSpinal Structural\_20170704_142335'...
-                'E:\Dawnis\IndependenceDay\L07\PostSpinal Structural\_20170704_142351'...
-                ...
-                'F:\Dawnis\IndieL08\PreQuench Structural\_20170704_150013'...
-                'F:\Dawnis\IndieL08\PreQuench Structural\_20170704_150028'...
-                'F:\Dawnis\IndieL08\ShckHBStructural\_20170704_165716'...
-                'F:\Dawnis\IndieL08\ShckHBStructural\_20170704_165723'...
-                'F:\Dawnis\IndieL08\ShckHBStructural\_20170704_165738'...
-                'F:\Dawnis\IndieL08\ShckHBStructural\_20170704_165755'...
-    };
+expt_directories = {};
+while ~user_continue
+    
+inpt = questdlg('Add EXPERIMENT Directories for Processing', 'Select EXPERIMENT Folders', 'Add Path', 'Delete Last Entry', 'Continue', 'Add Path');
+    if strcmp(inpt, 'Add Path')
+        upath = uigetdir('Please select experiment directory to add');
+        expt_directories{end+1} = upath;
+    elseif strcmp(inpt, 'Delete Last Entry')
+        expt_directories(end) = [];
+    elseif strcmp(inpt, 'Continue')
+        user_continue = true;
+    end
 
-%add any co-label folders (containing the red channel) here. These folders
-%MUST have a copy of the conversionParameters.mat file that matches their
-%parent trial in them. 
+disp('Current Expt Directory List:');
+disp(expt_directories);
 
-colabel_directories = { ...
-            'E:\Dawnis\IndependenceDay\L07\PreQuench\_20170704_115453'...
-    };
+end
 
+user_continue = false;
+colabel_directories = {};
+while ~user_continue
+    
+inpt = questdlg('Add CO-LABEL Directories for Processing', 'Select EXPERIMENT Folders', 'Add Path', 'Delete Last Entry', 'Continue', 'Add Path');
+    if strcmp(inpt, 'Add Path')
+        upath = uigetdir('Please select experiment directory to add');
+        colabel_directories{end+1} = upath;
+    elseif strcmp(inpt, 'Delete Last Entry')
+        colabel_directories(end) = [];
+    elseif strcmp(inpt, 'Continue')
+        user_continue = true;
+    end
+
+disp('Current Expt Directory List:');
+disp(colabel_directories);
+
+end
+
+% expt_directories = {...
+%                 'F:\Rick\_20180725_F1T3_10minsGFP\10min series',...
+%                 };
+
+% 
+% %add any co-label folders (containing the red channel) here. These folders
+% %MUST have a copy of the conversionParameters.mat file that matches their
+% %parent trial in them. 
+% 
+% colabel_directories = { ...
+%         'F:\Rick\_20180725_F1T2_5minsmRFP';
+%     };
+%ADDED FOR NO-COLABEL RUNS
 %DO NOT CHANGE ANYTHING BELOW THIS LINE
 
 list_of_directories = [expt_directories, colabel_directories];
 
+system_shutdown = questdlg('System shutdown upon completion?', 'System Shutdown')
+system_shutdown_after_completion = strcmp(system_shutdown, 'Yes');
+
+disp('Done collecting directories, starting conversion...');
+
+if system_shutdown_after_completion
+    disp('System will turn off after conversion is complete.');
+else
+    disp('System will remain on after conversion is complete.');
+end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 for directory_idx  = 1:numel(list_of_directories)
@@ -50,7 +81,7 @@ for directory_idx  = 1:numel(list_of_directories)
         convert.computeMax = false;
         convert.computeMean = false;
         convert.outputformat = '.tif';
-        convert.writeKeyImage = false;
+        convert.fetchKey = false;
         convert.writeTimeSliceMovies = false;
         convert.cropParameters.mask = 0;
     end
